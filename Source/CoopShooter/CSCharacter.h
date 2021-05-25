@@ -3,8 +3,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
+
 #include "GameFramework/Character.h"
+
 #include "CSCharacter.generated.h"
+
+class USpringArmComponent;
+class UCameraComponent;
 
 UCLASS()
 class COOPSHOOTER_API ACSCharacter : public ACharacter
@@ -15,6 +20,13 @@ public:
 	ACSCharacter();
 
 protected:
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components")
+	USpringArmComponent* SpringArmComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components")
+	UCameraComponent* CameraComponent;
+
 	virtual void BeginPlay() override;
 
 	void MoveForward(float Value);
