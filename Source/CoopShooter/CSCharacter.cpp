@@ -18,6 +18,8 @@ ACSCharacter::ACSCharacter()
 
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>("CameraComponent");
 	CameraComponent->SetupAttachment(SpringArmComponent);
+
+	GetCharacterMovement()->GetNavAgentPropertiesRef().bCanCrouch = true;
 }
 
 void ACSCharacter::BeginPlay()
@@ -39,6 +41,9 @@ void ACSCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	
 	PlayerInputComponent->BindAxis("LookUp", this, &ACSCharacter::AddControllerPitchInput);
 	PlayerInputComponent->BindAxis("LookRight", this, &ACSCharacter::AddControllerYawInput);
+
+	PlayerInputComponent->BindAction<FCrouchDelegate>("Crouch", IE_Pressed, this, &ACSCharacter::Crouch, false);
+	PlayerInputComponent->BindAction<FCrouchDelegate>("Crouch", IE_Released, this, &ACSCharacter::UnCrouch, false);
 }
 
 void ACSCharacter::MoveForward(const float Value)

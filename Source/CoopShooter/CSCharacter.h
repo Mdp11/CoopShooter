@@ -33,6 +33,8 @@ protected:
 
 	void MoveRight(float Value);
 
+	DECLARE_DELEGATE_OneParam(FCrouchDelegate, bool);
+
 public:
 	virtual void Tick(float DeltaTime) override;
 
