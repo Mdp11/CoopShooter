@@ -10,6 +10,7 @@
 
 class USpringArmComponent;
 class UCameraComponent;
+class ACSBaseWeapon;
 
 UCLASS()
 class COOPSHOOTER_API ACSCharacter : public ACharacter
@@ -26,6 +27,12 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components")
 	UCameraComponent* CameraComponent;
 
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<ACSBaseWeapon> WeaponClass;
+	
+	UPROPERTY()
+	ACSBaseWeapon* Weapon;
+	
 	UPROPERTY(EditInstanceOnly, Category="Movement")
 	float WalkVelocityModifier;
 
@@ -34,7 +41,7 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, Category="Movement")
 	bool bWalking;
-	
+
 	bool bSprinting;
 
 	bool bCanJump;

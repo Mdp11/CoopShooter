@@ -6,6 +6,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "CSBaseWeapon.h"
 
 ACSCharacter::ACSCharacter()
 {
@@ -35,6 +36,21 @@ ACSCharacter::ACSCharacter()
 void ACSCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if(WeaponClass)
+	{
+		FActorSpawnParameters SpawnParameters;
+		SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		
+		Weapon = GetWorld()->SpawnActor<ACSBaseWeapon>(WeaponClass, SpawnParameters);
+		
+		Weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("WeaponSocket"));
+		Weapon->SetOwner(this);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("AAAA"));
+	}
 }
 
 void ACSCharacter::Tick(float DeltaTime)
