@@ -20,18 +20,34 @@ public:
 	ACSCharacter();
 
 protected:
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components")
 	USpringArmComponent* SpringArmComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components")
 	UCameraComponent* CameraComponent;
 
+	UPROPERTY(EditInstanceOnly, Category="Movement")
+	float WalkVelocityModifier;
+
+	UPROPERTY(EditInstanceOnly, Category="Movement")
+	float RunVelocityModifier;
+
+	bool bWalking;
+
+	bool bCanSprint;
+	bool bSprinting;
+
 	virtual void BeginPlay() override;
 
 	void MoveForward(float Value);
 
 	void MoveRight(float Value);
+
+	void SwitchWalkRun();
+
+	void ActivateSprint();
+
+	void DeactivateSprint();
 
 	DECLARE_DELEGATE_OneParam(FCrouchDelegate, bool);
 
