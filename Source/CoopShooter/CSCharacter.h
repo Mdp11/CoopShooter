@@ -42,6 +42,7 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category="Movement")
 	bool bWalking;
 
+	UPROPERTY(BlueprintReadOnly, Category="Movement")
 	bool bSprinting;
 
 	bool bCanJump;
