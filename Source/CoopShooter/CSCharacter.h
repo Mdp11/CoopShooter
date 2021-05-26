@@ -33,8 +33,7 @@ protected:
 	float RunVelocityModifier;
 
 	bool bWalking;
-
-	bool bCanSprint;
+	
 	bool bSprinting;
 
 	virtual void BeginPlay() override;

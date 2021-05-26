@@ -22,7 +22,6 @@ ACSCharacter::ACSCharacter()
 	GetCharacterMovement()->GetNavAgentPropertiesRef().bCanCrouch = true;
 
 	bWalking = false;
-	bCanSprint = false;
 	bSprinting = false;
 	
 	GetCharacterMovement()->MaxWalkSpeed = 900.f;
