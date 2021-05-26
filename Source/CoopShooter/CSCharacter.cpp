@@ -52,8 +52,8 @@ void ACSCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	PlayerInputComponent->BindAxis("LookUp", this, &ACSCharacter::AddControllerPitchInput);
 	PlayerInputComponent->BindAxis("LookRight", this, &ACSCharacter::AddControllerYawInput);
 
-	PlayerInputComponent->BindAction<FCrouchDelegate>("Crouch", IE_Pressed, this, &ACSCharacter::Crouch, false);
-	PlayerInputComponent->BindAction<FCrouchDelegate>("Crouch", IE_Released, this, &ACSCharacter::UnCrouch, false);
+	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &ACSCharacter::StartCrouch);
+	PlayerInputComponent->BindAction("Crouch", IE_Released, this, &ACSCharacter::StopCrouch);
 
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACSCharacter::Jump);
 
@@ -86,6 +86,23 @@ void ACSCharacter::MoveRight(float Value)
 	}
 	AddMovementInput(GetActorRightVector() * LastMovementInput.Y);
 }
+
+void ACSCharacter::StartCrouch()
+{
+	if(!GetCharacterMovement()->IsFalling() && !GetCharacterMovement()->IsCrouching())
+	{
+		ACharacter::Crouch();
+	}
+}
+
+void ACSCharacter::StopCrouch()
+{
+	if(GetCharacterMovement()->IsCrouching())
+	{
+		ACharacter::UnCrouch();
+	}
+}
+
 
 void ACSCharacter::SwitchWalkRun()
 {

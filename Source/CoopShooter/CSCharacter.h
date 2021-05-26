@@ -49,6 +49,10 @@ protected:
 	void MoveForward(float Value);
 
 	void MoveRight(float Value);
+	
+	void StartCrouch();
+	
+	void StopCrouch();
 
 	void SwitchWalkRun();
 
@@ -59,8 +63,6 @@ protected:
 	virtual void Jump() override;
 	
 	void ResetCanJump();
-
-	DECLARE_DELEGATE_OneParam(FCrouchDelegate, bool);
 
 public:
 	virtual void Tick(float DeltaTime) override;
