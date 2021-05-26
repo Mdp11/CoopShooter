@@ -73,7 +73,10 @@ protected:
 
 	void Fire();
 
+
 public:
+	virtual FVector GetPawnViewLocation() const override;
+	
 	virtual void Tick(float DeltaTime) override;
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;

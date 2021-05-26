@@ -162,3 +162,13 @@ void ACSCharacter::Fire()
 		Weapon->Fire();
 	}
 }
+
+FVector ACSCharacter::GetPawnViewLocation() const
+{
+	if(CameraComponent)
+	{
+		return CameraComponent->GetComponentLocation();
+	}
+
+	return Super::GetPawnViewLocation();
+}
