@@ -21,6 +21,7 @@ ACSCharacter::ACSCharacter()
 	CameraComponent->SetupAttachment(SpringArmComponent);
 
 	GetCharacterMovement()->GetNavAgentPropertiesRef().bCanCrouch = true;
+	GetCharacterMovement()->CrouchedHalfHeight = 58.f;
 
 	bWalking = false;
 	bSprinting = false;
@@ -37,13 +38,13 @@ void ACSCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if(WeaponClass)
+	if (WeaponClass)
 	{
 		FActorSpawnParameters SpawnParameters;
 		SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-		
+
 		Weapon = GetWorld()->SpawnActor<ACSBaseWeapon>(WeaponClass, SpawnParameters);
-		
+
 		Weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("WeaponSocket"));
 		Weapon->SetOwner(this);
 	}
@@ -79,6 +80,8 @@ void ACSCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	PlayerInputComponent->BindAction("Walk/Run", IE_Pressed, this, &ACSCharacter::SwitchWalkRun);
 	PlayerInputComponent->BindAction("Walk/Run", IE_Released, this, &ACSCharacter::SwitchWalkRun);
 	PlayerInputComponent->BindAction("Walk/Run Toggle", IE_Pressed, this, &ACSCharacter::SwitchWalkRun);
+
+	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &ACSCharacter::Fire);
 }
 
 void ACSCharacter::MoveForward(float Value)
@@ -105,7 +108,7 @@ void ACSCharacter::MoveRight(float Value)
 
 void ACSCharacter::StartCrouch()
 {
-	if(!GetCharacterMovement()->IsFalling() && !GetCharacterMovement()->IsCrouching())
+	if (!GetCharacterMovement()->IsFalling() && !GetCharacterMovement()->IsCrouching())
 	{
 		ACharacter::Crouch();
 	}
@@ -113,7 +116,7 @@ void ACSCharacter::StartCrouch()
 
 void ACSCharacter::StopCrouch()
 {
-	if(GetCharacterMovement()->IsCrouching())
+	if (GetCharacterMovement()->IsCrouching())
 	{
 		ACharacter::UnCrouch();
 	}
@@ -150,4 +153,12 @@ void ACSCharacter::Jump()
 void ACSCharacter::ResetCanJump()
 {
 	bCanJump = true;
+}
+
+void ACSCharacter::Fire()
+{
+	if (Weapon)
+	{
+		Weapon->Fire();
+	}
 }

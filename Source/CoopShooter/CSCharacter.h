@@ -29,10 +29,10 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<ACSBaseWeapon> WeaponClass;
-	
+
 	UPROPERTY()
 	ACSBaseWeapon* Weapon;
-	
+
 	UPROPERTY(EditInstanceOnly, Category="Movement")
 	float WalkVelocityModifier;
 
@@ -56,9 +56,9 @@ protected:
 	void MoveForward(float Value);
 
 	void MoveRight(float Value);
-	
+
 	void StartCrouch();
-	
+
 	void StopCrouch();
 
 	void SwitchWalkRun();
@@ -68,8 +68,10 @@ protected:
 	void DeactivateSprint();
 
 	virtual void Jump() override;
-	
+
 	void ResetCanJump();
+
+	void Fire();
 
 public:
 	virtual void Tick(float DeltaTime) override;
