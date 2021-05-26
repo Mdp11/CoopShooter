@@ -157,7 +157,7 @@ void ACSCharacter::ResetCanJump()
 
 void ACSCharacter::Fire()
 {
-	if (CurrentWeapon)
+	if (CurrentWeapon && !bSprinting)
 	{
 		CurrentWeapon->Fire();
 	}
