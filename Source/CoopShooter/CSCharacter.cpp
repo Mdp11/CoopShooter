@@ -23,7 +23,7 @@ ACSCharacter::ACSCharacter()
 
 	bWalking = false;
 	bSprinting = false;
-	
+
 	GetCharacterMovement()->MaxWalkSpeed = 900.f;
 
 	WalkVelocityModifier = 0.33f;
@@ -46,18 +46,18 @@ void ACSCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 
 	PlayerInputComponent->BindAxis("MoveForward", this, &ACSCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &ACSCharacter::MoveRight);
-	
+
 	PlayerInputComponent->BindAxis("LookUp", this, &ACSCharacter::AddControllerPitchInput);
 	PlayerInputComponent->BindAxis("LookRight", this, &ACSCharacter::AddControllerYawInput);
 
 	PlayerInputComponent->BindAction<FCrouchDelegate>("Crouch", IE_Pressed, this, &ACSCharacter::Crouch, false);
 	PlayerInputComponent->BindAction<FCrouchDelegate>("Crouch", IE_Released, this, &ACSCharacter::UnCrouch, false);
-	
+
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACSCharacter::Jump);
 
 	PlayerInputComponent->BindAction("Sprint", IE_DoubleClick, this, &ACSCharacter::ActivateSprint);
 	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &ACSCharacter::DeactivateSprint);
-	
+
 	PlayerInputComponent->BindAction("Walk/Run", IE_Pressed, this, &ACSCharacter::SwitchWalkRun);
 	PlayerInputComponent->BindAction("Walk/Run", IE_Released, this, &ACSCharacter::SwitchWalkRun);
 	PlayerInputComponent->BindAction("Walk/Run Toggle", IE_Pressed, this, &ACSCharacter::SwitchWalkRun);
@@ -65,15 +65,24 @@ void ACSCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 
 void ACSCharacter::MoveForward(float Value)
 {
-	Value *= bSprinting ? 1.f : bWalking ? WalkVelocityModifier : RunVelocityModifier;
-	AddMovementInput(GetActorForwardVector() * Value);
+	Value *= bSprinting && !bIsCrouched ? 1.f : bWalking ? WalkVelocityModifier : RunVelocityModifier;
+	LastMovementInput.X = Value;
+	if (!bSprinting && FMath::Abs(LastMovementInput.Y) > 0.f)
+	{
+		LastMovementInput.X = LastMovementInput.X * 6.f / 9.f;
+	}
+	AddMovementInput(GetActorForwardVector() * LastMovementInput.X);
 }
 
 void ACSCharacter::MoveRight(float Value)
 {
-	
-	Value *= bSprinting ? 0.2 : bWalking ? WalkVelocityModifier : RunVelocityModifier;
-	AddMovementInput(GetActorRightVector() * Value);
+	Value *= bSprinting && !bIsCrouched ? 0.2 : bWalking ? WalkVelocityModifier : RunVelocityModifier;
+	LastMovementInput.Y = Value;
+	if (!bSprinting && FMath::Abs(LastMovementInput.X) > 0.f)
+	{
+		LastMovementInput.Y = LastMovementInput.Y * 6.f / 9.f;
+	}
+	AddMovementInput(GetActorRightVector() * LastMovementInput.Y);
 }
 
 void ACSCharacter::SwitchWalkRun()

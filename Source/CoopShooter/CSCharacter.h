@@ -36,6 +36,8 @@ protected:
 	
 	bool bSprinting;
 
+	FVector LastMovementInput;
+
 	virtual void BeginPlay() override;
 
 	void MoveForward(float Value);
