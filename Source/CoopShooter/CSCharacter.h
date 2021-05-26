@@ -27,11 +27,16 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components")
 	UCameraComponent* CameraComponent;
 
-	UPROPERTY(EditDefaultsOnly)
-	TSubclassOf<ACSBaseWeapon> WeaponClass;
+	UPROPERTY(EditDefaultsOnly, Category="Weapons")
+	TArray<TSubclassOf<ACSBaseWeapon>> WeaponClasses;
 
 	UPROPERTY()
-	ACSBaseWeapon* Weapon;
+	TArray<ACSBaseWeapon*> Weapons;
+
+	UPROPERTY()
+	ACSBaseWeapon* CurrentWeapon;
+	
+	int CurrentWeaponIndex;
 
 	UPROPERTY(EditInstanceOnly, Category="Movement")
 	float WalkVelocityModifier;
@@ -73,6 +78,11 @@ protected:
 	void ResetCanJump();
 
 	void Fire();
+	ACSBaseWeapon* SpawnWeapon(int Index);
+
+	void SwitchWeapon(int Index);
+
+	DECLARE_DELEGATE_OneParam(FDelegate_WeaponSwitch, int);
 
 
 public:

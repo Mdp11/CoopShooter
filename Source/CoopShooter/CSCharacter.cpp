@@ -32,25 +32,18 @@ ACSCharacter::ACSCharacter()
 	RunVelocityModifier = 0.66f;
 	JumpResetTime = 1.2f;
 	bCanJump = true;
+
+	CurrentWeaponIndex = -1;
 }
 
 void ACSCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (WeaponClass)
+	if (WeaponClasses.Num() > 0)
 	{
-		FActorSpawnParameters SpawnParameters;
-		SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-
-		Weapon = GetWorld()->SpawnActor<ACSBaseWeapon>(WeaponClass, SpawnParameters);
-
-		Weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("WeaponSocket"));
-		Weapon->SetOwner(this);
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("AAAA"));
+		Weapons.Init(nullptr, WeaponClasses.Num());
+		SwitchWeapon(0);
 	}
 }
 
@@ -82,6 +75,13 @@ void ACSCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	PlayerInputComponent->BindAction("Walk/Run Toggle", IE_Pressed, this, &ACSCharacter::SwitchWalkRun);
 
 	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &ACSCharacter::Fire);
+
+	PlayerInputComponent->BindAction<FDelegate_WeaponSwitch>("WeaponSlot1", IE_Pressed, this,
+	                                                         &ACSCharacter::SwitchWeapon, 0);
+	PlayerInputComponent->BindAction<FDelegate_WeaponSwitch>("WeaponSlot2", IE_Pressed, this,
+	                                                         &ACSCharacter::SwitchWeapon, 1);
+	PlayerInputComponent->BindAction<FDelegate_WeaponSwitch>("WeaponSlot3", IE_Pressed, this,
+	                                                         &ACSCharacter::SwitchWeapon, 2);
 }
 
 void ACSCharacter::MoveForward(float Value)
@@ -157,15 +157,49 @@ void ACSCharacter::ResetCanJump()
 
 void ACSCharacter::Fire()
 {
-	if (Weapon)
+	if (CurrentWeapon)
 	{
-		Weapon->Fire();
+		CurrentWeapon->Fire();
+	}
+}
+
+ACSBaseWeapon* ACSCharacter::SpawnWeapon(const int Index)
+{
+	FActorSpawnParameters SpawnParameters;
+	SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+	ACSBaseWeapon* Weapon = GetWorld()->SpawnActor<ACSBaseWeapon>(WeaponClasses[Index], SpawnParameters);
+	Weapon->SetActorHiddenInGame(true);
+
+	Weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform,
+	                          TEXT("WeaponSocket"));
+	Weapon->SetOwner(this);
+
+	return Weapon;
+}
+
+void ACSCharacter::SwitchWeapon(const int Index)
+{
+	if (CurrentWeaponIndex != Index && Index < WeaponClasses.Num())
+	{
+		if (!Weapons[Index])
+		{
+			Weapons[Index] = SpawnWeapon(Index);
+		}
+
+		if (CurrentWeapon)
+		{
+			CurrentWeapon->SetActorHiddenInGame(true);
+		}
+
+		CurrentWeapon = Weapons[Index];
+		CurrentWeapon->SetActorHiddenInGame(false);
 	}
 }
 
 FVector ACSCharacter::GetPawnViewLocation() const
 {
-	if(CameraComponent)
+	if (CameraComponent)
 	{
 		return CameraComponent->GetComponentLocation();
 	}
