@@ -28,6 +28,8 @@ ACSCharacter::ACSCharacter()
 
 	WalkVelocityModifier = 0.33f;
 	RunVelocityModifier = 0.66f;
+	JumpResetTime = 1.2f;
+	bCanJump = true;
 }
 
 void ACSCharacter::BeginPlay()
@@ -98,4 +100,21 @@ void ACSCharacter::ActivateSprint()
 void ACSCharacter::DeactivateSprint()
 {
 	bSprinting = false;
+}
+
+void ACSCharacter::Jump()
+{
+	if (bCanJump)
+	{
+		Super::Jump();
+		bCanJump = false;
+
+		FTimerHandle TimerHandle_JumpReset;
+		GetWorldTimerManager().SetTimer(TimerHandle_JumpReset, this, &ACSCharacter::ResetCanJump, JumpResetTime);
+	}
+}
+
+void ACSCharacter::ResetCanJump()
+{
+	bCanJump = true;
 }

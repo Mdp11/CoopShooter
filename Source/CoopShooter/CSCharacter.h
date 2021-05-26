@@ -32,9 +32,15 @@ protected:
 	UPROPERTY(EditInstanceOnly, Category="Movement")
 	float RunVelocityModifier;
 
+	UPROPERTY(BlueprintReadOnly, Category="Movement")
 	bool bWalking;
 	
 	bool bSprinting;
+
+	bool bCanJump;
+
+	UPROPERTY(EditDefaultsOnly, Category="Movement")
+	float JumpResetTime;
 
 	FVector LastMovementInput;
 
@@ -49,6 +55,10 @@ protected:
 	void ActivateSprint();
 
 	void DeactivateSprint();
+
+	virtual void Jump() override;
+	
+	void ResetCanJump();
 
 	DECLARE_DELEGATE_OneParam(FCrouchDelegate, bool);
 
