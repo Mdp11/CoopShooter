@@ -36,7 +36,7 @@ ACSCharacter::ACSCharacter()
 
 	CurrentWeaponIndex = -1;
 
-	bWantsToZoom = false;
+	bTargeting = false;
 
 	ZoomedFOV = 65.f;
 	ZoomInterpSpeed = 20.f;
@@ -59,7 +59,7 @@ void ACSCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	const float TargetFOV = bWantsToZoom ? ZoomedFOV : BaseFOV;
+	const float TargetFOV = bTargeting ? ZoomedFOV : BaseFOV;
 	const float CurrentFOV = CameraComponent->FieldOfView;
 
 	if(!FMath::IsNearlyEqual(TargetFOV, CurrentFOV))
@@ -108,7 +108,7 @@ void ACSCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 
 void ACSCharacter::MoveForward(float Value)
 {
-	Value *= bSprinting && !bIsCrouched ? 1.f : bWalking ? WalkVelocityModifier : RunVelocityModifier;
+	Value *= bSprinting && !bIsCrouched ? 1.f : bWalking || bTargeting ? WalkVelocityModifier : RunVelocityModifier;
 	LastMovementInput.X = Value;
 	if (!bSprinting && FMath::Abs(LastMovementInput.Y) > 0.f)
 	{
@@ -119,7 +119,7 @@ void ACSCharacter::MoveForward(float Value)
 
 void ACSCharacter::MoveRight(float Value)
 {
-	Value *= bSprinting && !bIsCrouched ? 0.2 : bWalking ? WalkVelocityModifier : RunVelocityModifier;
+	Value *= bSprinting && !bIsCrouched ? 0.2 : bWalking|| bTargeting ? WalkVelocityModifier : RunVelocityModifier;
 	LastMovementInput.Y = Value;
 	if (!bSprinting && FMath::Abs(LastMovementInput.X) > 0.f)
 	{
@@ -130,6 +130,7 @@ void ACSCharacter::MoveRight(float Value)
 
 void ACSCharacter::StartCrouch()
 {
+	bSprinting = false;
 	if (!GetCharacterMovement()->IsFalling() && !GetCharacterMovement()->IsCrouching())
 	{
 		ACharacter::Crouch();
@@ -179,8 +180,9 @@ void ACSCharacter::ResetCanJump()
 
 void ACSCharacter::Fire()
 {
-	if (CurrentWeapon && !bSprinting)
+	if (CurrentWeapon)
 	{
+		bSprinting = false;
 		CurrentWeapon->Fire();
 	}
 }
@@ -221,12 +223,13 @@ void ACSCharacter::SwitchWeapon(const int Index)
 
 void ACSCharacter::Zoom()
 {
-	bWantsToZoom = true;
+	bTargeting = true;
+	bSprinting = false;
 }
 
 void ACSCharacter::UnZoom()
 {
-	bWantsToZoom = false;
+	bTargeting = false;
 }
 
 FVector ACSCharacter::GetPawnViewLocation() const

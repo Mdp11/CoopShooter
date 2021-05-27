@@ -44,7 +44,8 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category="Combat", meta=(ClampMin = 0.1f, ClampMax = 100.f))
 	float ZoomInterpSpeed;
 
-	bool bWantsToZoom;
+	UPROPERTY(BlueprintReadOnly)
+	bool bTargeting;
 
 	int CurrentWeaponIndex;
 
