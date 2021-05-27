@@ -30,7 +30,7 @@ ACSCharacter::ACSCharacter()
 
 	WalkVelocityModifier = 0.33f;
 	RunVelocityModifier = 0.66f;
-	
+
 	JumpResetTime = 1.2f;
 	bCanJump = true;
 
@@ -40,6 +40,8 @@ ACSCharacter::ACSCharacter()
 
 	ZoomedFOV = 65.f;
 	ZoomInterpSpeed = 20.f;
+
+	WeaponAttachSocketName = "WeaponSocket";
 }
 
 void ACSCharacter::BeginPlay()
@@ -62,12 +64,11 @@ void ACSCharacter::Tick(float DeltaTime)
 	const float TargetFOV = bTargeting ? ZoomedFOV : BaseFOV;
 	const float CurrentFOV = CameraComponent->FieldOfView;
 
-	if(!FMath::IsNearlyEqual(TargetFOV, CurrentFOV))
+	if (!FMath::IsNearlyEqual(TargetFOV, CurrentFOV))
 	{
 		const float NewFOV = FMath::FInterpTo(CurrentFOV, TargetFOV, DeltaTime, ZoomInterpSpeed);
 		CameraComponent->SetFieldOfView(NewFOV);
 	}
-
 }
 
 void ACSCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -102,7 +103,7 @@ void ACSCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	                                                         &ACSCharacter::SwitchWeapon, 2);
 
 	PlayerInputComponent->BindAction("Zoom", IE_Pressed, this, &ACSCharacter::Zoom);
-	
+
 	PlayerInputComponent->BindAction("Zoom", IE_Released, this, &ACSCharacter::UnZoom);
 }
 
@@ -119,7 +120,7 @@ void ACSCharacter::MoveForward(float Value)
 
 void ACSCharacter::MoveRight(float Value)
 {
-	Value *= bSprinting && !bIsCrouched ? 0.2 : bWalking|| bTargeting ? WalkVelocityModifier : RunVelocityModifier;
+	Value *= bSprinting && !bIsCrouched ? 0.2 : bWalking || bTargeting ? WalkVelocityModifier : RunVelocityModifier;
 	LastMovementInput.Y = Value;
 	if (!bSprinting && FMath::Abs(LastMovementInput.X) > 0.f)
 	{
@@ -183,7 +184,7 @@ void ACSCharacter::Fire()
 	if (CurrentWeapon)
 	{
 		bSprinting = false;
-		CurrentWeapon->Fire();
+		CurrentWeapon->StartFire();
 	}
 }
 
@@ -193,12 +194,14 @@ ACSBaseWeapon* ACSCharacter::SpawnWeapon(const int Index)
 	SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
 	ACSBaseWeapon* Weapon = GetWorld()->SpawnActor<ACSBaseWeapon>(WeaponClasses[Index], SpawnParameters);
-	Weapon->SetActorHiddenInGame(true);
+	if (Weapon)
+	{
+		Weapon->SetActorHiddenInGame(true);
 
-	Weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform,
-	                          TEXT("WeaponSocket"));
-	Weapon->SetOwner(this);
-
+		Weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale,
+		                          WeaponAttachSocketName);
+		Weapon->SetOwner(this);
+	}
 	return Weapon;
 }
 
@@ -208,7 +211,14 @@ void ACSCharacter::SwitchWeapon(const int Index)
 	{
 		if (!Weapons[Index])
 		{
-			Weapons[Index] = SpawnWeapon(Index);
+			auto* SpawnedWeapon = SpawnWeapon(Index);
+
+			if (!SpawnedWeapon)
+			{
+				return;
+			}
+
+			Weapons[Index] = SpawnedWeapon;
 		}
 
 		if (CurrentWeapon)
@@ -218,6 +228,8 @@ void ACSCharacter::SwitchWeapon(const int Index)
 
 		CurrentWeapon = Weapons[Index];
 		CurrentWeapon->SetActorHiddenInGame(false);
+
+		CurrentWeaponIndex = Index;
 	}
 }
 

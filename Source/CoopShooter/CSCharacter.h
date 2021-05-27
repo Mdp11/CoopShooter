@@ -68,6 +68,9 @@ protected:
 
 	FVector LastMovementInput;
 
+	UPROPERTY(VisibleDefaultsOnly, Category="Weapons")
+	FName WeaponAttachSocketName;
+
 	virtual void BeginPlay() override;
 
 	void MoveForward(float Value);
