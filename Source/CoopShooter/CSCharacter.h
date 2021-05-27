@@ -35,7 +35,17 @@ protected:
 
 	UPROPERTY()
 	ACSBaseWeapon* CurrentWeapon;
-	
+
+	UPROPERTY(EditDefaultsOnly, Category="Combat")
+	float ZoomedFOV;
+
+	float BaseFOV;
+
+	UPROPERTY(EditDefaultsOnly, Category="Combat", meta=(ClampMin = 0.1f, ClampMax = 100.f))
+	float ZoomInterpSpeed;
+
+	bool bWantsToZoom;
+
 	int CurrentWeaponIndex;
 
 	UPROPERTY(EditInstanceOnly, Category="Movement")
@@ -84,10 +94,14 @@ protected:
 
 	DECLARE_DELEGATE_OneParam(FDelegate_WeaponSwitch, int);
 
+	void Zoom();
+
+	void UnZoom();
+
 
 public:
 	virtual FVector GetPawnViewLocation() const override;
-	
+
 	virtual void Tick(float DeltaTime) override;
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;

@@ -30,15 +30,23 @@ ACSCharacter::ACSCharacter()
 
 	WalkVelocityModifier = 0.33f;
 	RunVelocityModifier = 0.66f;
+	
 	JumpResetTime = 1.2f;
 	bCanJump = true;
 
 	CurrentWeaponIndex = -1;
+
+	bWantsToZoom = false;
+
+	ZoomedFOV = 65.f;
+	ZoomInterpSpeed = 20.f;
 }
 
 void ACSCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	BaseFOV = CameraComponent->FieldOfView;
 
 	if (WeaponClasses.Num() > 0)
 	{
@@ -50,6 +58,16 @@ void ACSCharacter::BeginPlay()
 void ACSCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	const float TargetFOV = bWantsToZoom ? ZoomedFOV : BaseFOV;
+	const float CurrentFOV = CameraComponent->FieldOfView;
+
+	if(!FMath::IsNearlyEqual(TargetFOV, CurrentFOV))
+	{
+		const float NewFOV = FMath::FInterpTo(CurrentFOV, TargetFOV, DeltaTime, ZoomInterpSpeed);
+		CameraComponent->SetFieldOfView(NewFOV);
+	}
+
 }
 
 void ACSCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -82,6 +100,10 @@ void ACSCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	                                                         &ACSCharacter::SwitchWeapon, 1);
 	PlayerInputComponent->BindAction<FDelegate_WeaponSwitch>("WeaponSlot3", IE_Pressed, this,
 	                                                         &ACSCharacter::SwitchWeapon, 2);
+
+	PlayerInputComponent->BindAction("Zoom", IE_Pressed, this, &ACSCharacter::Zoom);
+	
+	PlayerInputComponent->BindAction("Zoom", IE_Released, this, &ACSCharacter::UnZoom);
 }
 
 void ACSCharacter::MoveForward(float Value)
@@ -195,6 +217,16 @@ void ACSCharacter::SwitchWeapon(const int Index)
 		CurrentWeapon = Weapons[Index];
 		CurrentWeapon->SetActorHiddenInGame(false);
 	}
+}
+
+void ACSCharacter::Zoom()
+{
+	bWantsToZoom = true;
+}
+
+void ACSCharacter::UnZoom()
+{
+	bWantsToZoom = false;
 }
 
 FVector ACSCharacter::GetPawnViewLocation() const
