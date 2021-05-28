@@ -57,10 +57,8 @@ void ACSCharacter::BeginPlay()
 	}
 }
 
-void ACSCharacter::Tick(float DeltaTime)
+void ACSCharacter::HandleFOV(float DeltaTime)
 {
-	Super::Tick(DeltaTime);
-
 	const float TargetFOV = bTargeting ? ZoomedFOV : BaseFOV;
 	const float CurrentFOV = CameraComponent->FieldOfView;
 
@@ -69,6 +67,13 @@ void ACSCharacter::Tick(float DeltaTime)
 		const float NewFOV = FMath::FInterpTo(CurrentFOV, TargetFOV, DeltaTime, ZoomInterpSpeed);
 		CameraComponent->SetFieldOfView(NewFOV);
 	}
+}
+
+void ACSCharacter::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	HandleFOV(DeltaTime);
 }
 
 void ACSCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -251,6 +256,13 @@ void ACSCharacter::Zoom()
 void ACSCharacter::UnZoom()
 {
 	bTargeting = false;
+}
+
+void ACSCharacter::AddRecoil(const FRotator& Recoil)
+{
+	AddControllerPitchInput(-Recoil.Pitch);
+	AddControllerYawInput(Recoil.Yaw);
+	AddControllerRollInput(Recoil.Roll);
 }
 
 FVector ACSCharacter::GetPawnViewLocation() const

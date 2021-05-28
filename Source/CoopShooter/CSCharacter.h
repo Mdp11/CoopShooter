@@ -72,6 +72,8 @@ protected:
 	FName WeaponAttachSocketName;
 
 	virtual void BeginPlay() override;
+	
+	void HandleFOV(float DeltaTime);
 
 	void MoveForward(float Value);
 
@@ -106,10 +108,14 @@ protected:
 	void UnZoom();
 
 
+
+
 public:
 	virtual FVector GetPawnViewLocation() const override;
 
 	virtual void Tick(float DeltaTime) override;
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	
+	void AddRecoil(const FRotator& Recoil);
 };
