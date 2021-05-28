@@ -74,7 +74,7 @@ protected:
 	FRotator RecoilToAdd;
 
 	virtual void BeginPlay() override;
-	
+
 	void HandleFOV(float DeltaTime);
 
 	void HandleRecoil(float DeltaTime);
@@ -98,9 +98,9 @@ protected:
 	void ResetCanJump();
 
 	void RequestStartFire();
-	
+
 	void RequestStopFire();
-	
+
 	ACSBaseWeapon* SpawnWeapon(int Index);
 
 	void SwitchWeapon(int Index);
@@ -112,14 +112,12 @@ protected:
 	void UnZoom();
 
 
-
-
 public:
 	virtual FVector GetPawnViewLocation() const override;
 
 	virtual void Tick(float DeltaTime) override;
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-	
+
 	void AddRecoil(const FRotator& Recoil);
 };

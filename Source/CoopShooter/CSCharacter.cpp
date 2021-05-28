@@ -85,13 +85,6 @@ void ACSCharacter::HandleRecoil(float DeltaTime)
 		RecoilToAdd.Yaw = FMath::Max(RecoilToAdd.Yaw - YawRecoil, 0.f);
 		AddControllerYawInput(YawRecoil);
 	}
-
-	if (!FMath::IsNearlyZero(RecoilToAdd.Roll, 0.001f))
-	{
-		const float RollRecoil = FMath::FInterpTo(0.f, RecoilToAdd.Pitch, DeltaTime, 30.f);
-		RecoilToAdd.Roll = FMath::Max(RecoilToAdd.Roll - RollRecoil, 0.f);
-		AddControllerRollInput(RollRecoil);
-	}
 }
 
 void ACSCharacter::Tick(float DeltaTime)
