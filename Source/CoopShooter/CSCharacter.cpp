@@ -93,7 +93,8 @@ void ACSCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	PlayerInputComponent->BindAction("Walk/Run", IE_Released, this, &ACSCharacter::SwitchWalkRun);
 	PlayerInputComponent->BindAction("Walk/Run Toggle", IE_Pressed, this, &ACSCharacter::SwitchWalkRun);
 
-	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &ACSCharacter::Fire);
+	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &ACSCharacter::RequestStartFire);
+	PlayerInputComponent->BindAction("Fire", IE_Released, this, &ACSCharacter::RequestStopFire);
 
 	PlayerInputComponent->BindAction<FDelegate_WeaponSwitch>("WeaponSlot1", IE_Pressed, this,
 	                                                         &ACSCharacter::SwitchWeapon, 0);
@@ -179,12 +180,20 @@ void ACSCharacter::ResetCanJump()
 	bCanJump = true;
 }
 
-void ACSCharacter::Fire()
+void ACSCharacter::RequestStartFire()
 {
 	if (CurrentWeapon)
 	{
 		bSprinting = false;
 		CurrentWeapon->StartFire();
+	}
+}
+
+void ACSCharacter::RequestStopFire()
+{
+	if (CurrentWeapon)
+	{
+		CurrentWeapon->StopFire();
 	}
 }
 

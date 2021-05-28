@@ -91,7 +91,10 @@ protected:
 
 	void ResetCanJump();
 
-	void Fire();
+	void RequestStartFire();
+	
+	void RequestStopFire();
+	
 	ACSBaseWeapon* SpawnWeapon(int Index);
 
 	void SwitchWeapon(int Index);
