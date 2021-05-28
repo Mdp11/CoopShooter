@@ -237,6 +237,7 @@ void ACSCharacter::SwitchWeapon(const int Index)
 
 		if (CurrentWeapon)
 		{
+			CurrentWeapon->StopFire();		
 			CurrentWeapon->SetActorHiddenInGame(true);
 		}
 
