@@ -4,6 +4,6 @@
 
 #include "CoreMinimal.h"
 
-#define SURFACE_FLASH_DEFAULT SurfaceType1
-#define SURFACE_FLASH_VULNERABLE SurfaceType2
+constexpr auto SURFACE_FLASH_DEFAULT = SurfaceType1;
+constexpr auto SURFACE_FLASH_VULNERABLE = SurfaceType2;
 
