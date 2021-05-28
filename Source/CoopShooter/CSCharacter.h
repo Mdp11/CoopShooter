@@ -71,9 +71,13 @@ protected:
 	UPROPERTY(VisibleDefaultsOnly, Category="Weapons")
 	FName WeaponAttachSocketName;
 
+	FRotator RecoilToAdd;
+
 	virtual void BeginPlay() override;
 	
 	void HandleFOV(float DeltaTime);
+
+	void HandleRecoil(float DeltaTime);
 
 	void MoveForward(float Value);
 

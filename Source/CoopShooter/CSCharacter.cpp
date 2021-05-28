@@ -3,6 +3,7 @@
 
 #include "CSCharacter.h"
 
+#include "CoopShooter.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -69,11 +70,37 @@ void ACSCharacter::HandleFOV(float DeltaTime)
 	}
 }
 
+void ACSCharacter::HandleRecoil(float DeltaTime)
+{
+	if (!FMath::IsNearlyZero(RecoilToAdd.Pitch, 0.001f))
+	{
+		const float PitchRecoil = FMath::FInterpTo(0.f, RecoilToAdd.Pitch, DeltaTime, 30.f);
+		RecoilToAdd.Pitch = FMath::Max(RecoilToAdd.Pitch - PitchRecoil, 0.f);
+		AddControllerPitchInput(-PitchRecoil);
+	}
+
+	if (!FMath::IsNearlyZero(RecoilToAdd.Yaw, 0.001f))
+	{
+		const float YawRecoil = FMath::FInterpTo(0.f, RecoilToAdd.Pitch, DeltaTime, 30.f);
+		RecoilToAdd.Yaw = FMath::Max(RecoilToAdd.Yaw - YawRecoil, 0.f);
+		AddControllerYawInput(YawRecoil);
+	}
+
+	if (!FMath::IsNearlyZero(RecoilToAdd.Roll, 0.001f))
+	{
+		const float RollRecoil = FMath::FInterpTo(0.f, RecoilToAdd.Pitch, DeltaTime, 30.f);
+		RecoilToAdd.Roll = FMath::Max(RecoilToAdd.Roll - RollRecoil, 0.f);
+		AddControllerRollInput(RollRecoil);
+	}
+}
+
 void ACSCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
 	HandleFOV(DeltaTime);
+
+	HandleRecoil(DeltaTime);
 }
 
 void ACSCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -237,7 +264,7 @@ void ACSCharacter::SwitchWeapon(const int Index)
 
 		if (CurrentWeapon)
 		{
-			CurrentWeapon->StopFire();		
+			CurrentWeapon->StopFire();
 			CurrentWeapon->SetActorHiddenInGame(true);
 		}
 
@@ -261,9 +288,7 @@ void ACSCharacter::UnZoom()
 
 void ACSCharacter::AddRecoil(const FRotator& Recoil)
 {
-	AddControllerPitchInput(-Recoil.Pitch);
-	AddControllerYawInput(Recoil.Yaw);
-	AddControllerRollInput(Recoil.Roll);
+	RecoilToAdd = Recoil;
 }
 
 FVector ACSCharacter::GetPawnViewLocation() const
