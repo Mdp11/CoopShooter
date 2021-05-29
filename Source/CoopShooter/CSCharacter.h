@@ -118,6 +118,9 @@ protected:
 
 	void UnZoom();
 
+	UFUNCTION(BlueprintCallable, Category="State")
+	bool IsFiring() const;
+
 
 public:
 	virtual FVector GetPawnViewLocation() const override;

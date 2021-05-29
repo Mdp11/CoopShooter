@@ -299,6 +299,11 @@ void ACSCharacter::UnZoom()
 	bTargeting = false;
 }
 
+bool ACSCharacter::IsFiring() const
+{
+	return CurrentWeapon && CurrentWeapon->IsFiring();
+}
+
 void ACSCharacter::AddRecoil(const FRotator& Recoil)
 {
 	RecoilToAdd = Recoil;
