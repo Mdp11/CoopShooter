@@ -266,7 +266,7 @@ void ACSCharacter::RequestWeaponSwitch(const int Index)
 	if (CurrentWeaponIndex != Index && Index < WeaponClasses.Num())
 	{
 		bIsSwitchingWeapon = true;
-		
+
 		if (!Weapons[Index])
 		{
 			auto* SpawnedWeapon = SpawnWeapon(Index);
@@ -282,21 +282,22 @@ void ACSCharacter::RequestWeaponSwitch(const int Index)
 		if (CurrentWeapon)
 		{
 			CurrentWeapon->UnEquip();
-			
+
 			ACSBaseWeapon* PreviousWeapon = CurrentWeapon;
 			CurrentWeapon = nullptr;
-			
+
 			const float EquipAnimDuration = PlayWeaponAnimation(EquipAnim, 3.f);
 			GetWorldTimerManager().SetTimer(TimerHandle_SwitchWeapon,
 			                                FTimerDelegate::CreateUObject(
-				                                this, &ACSCharacter::SwitchWeapon, Index, PreviousWeapon, EquipAnimDuration / 2.f),
+				                                this, &ACSCharacter::SwitchWeapon, Index, PreviousWeapon,
+				                                EquipAnimDuration / 2.f),
 			                                FMath::Max(0.1f, EquipAnimDuration / 2.f), false);
 		}
 		else
 		{
 			CurrentWeapon = Weapons[Index];
 			CurrentWeapon->SetActorHiddenInGame(false);
-		
+
 			CurrentWeaponIndex = Index;
 
 			bIsSwitchingWeapon = false;
@@ -312,7 +313,8 @@ void ACSCharacter::SwitchWeapon(const int Index, ACSBaseWeapon* PreviousWeapon, 
 
 	CurrentWeaponIndex = Index;
 
-	GetWorldTimerManager().SetTimer(TimerHandle_CompleteWeaponSwitch, this, &ACSCharacter::CompleteWeaponSwitch, FMath::Max(0.1f, RemainingAnimDuration));
+	GetWorldTimerManager().SetTimer(TimerHandle_CompleteWeaponSwitch, this, &ACSCharacter::CompleteWeaponSwitch,
+	                                FMath::Max(0.1f, RemainingAnimDuration));
 }
 
 void ACSCharacter::CompleteWeaponSwitch()

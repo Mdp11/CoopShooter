@@ -87,7 +87,7 @@ protected:
 	float NoAnimEquipDuration;
 
 	FTimerHandle TimerHandle_SwitchWeapon;
-	
+
 	FTimerHandle TimerHandle_CompleteWeaponSwitch;
 
 	bool bIsSwitchingWeapon;
@@ -123,9 +123,9 @@ protected:
 	ACSBaseWeapon* SpawnWeapon(int Index);
 
 	void RequestWeaponSwitch(int Index);
-	
+
 	void SwitchWeapon(int Index, ACSBaseWeapon* PreviousWeapon, const float RemainingAnimDuration);
-	
+
 	void CompleteWeaponSwitch();
 
 	DECLARE_DELEGATE_OneParam(FDelegate_WeaponSwitch, int);
@@ -138,10 +138,6 @@ protected:
 	bool IsFiring() const;
 
 	void RequestReload();
-	
-	float PlayWeaponAnimation(UAnimMontage* Animation, float InPlayRate = 1.f,
-							FName StartSectionName = NAME_None);
-
 
 public:
 	virtual FVector GetPawnViewLocation() const override;
@@ -157,4 +153,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category="Ammo")
 	int GetCurrentWeaponMaxAmmo() const;
+
+	float PlayWeaponAnimation(UAnimMontage* Animation, float InPlayRate = 1.f,
+	                          FName StartSectionName = NAME_None);
 };
