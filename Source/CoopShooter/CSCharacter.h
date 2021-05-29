@@ -33,7 +33,7 @@ protected:
 	UPROPERTY()
 	TArray<ACSBaseWeapon*> Weapons;
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly)
 	ACSBaseWeapon* CurrentWeapon;
 
 	UPROPERTY(EditDefaultsOnly, Category="Combat")
