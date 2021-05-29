@@ -92,6 +92,8 @@ protected:
 
 	bool bIsSwitchingWeapon;
 
+	bool bWantsToFire;
+
 	virtual void BeginPlay() override;
 
 	void HandleFOV(float DeltaTime);

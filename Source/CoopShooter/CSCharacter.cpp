@@ -45,6 +45,7 @@ ACSCharacter::ACSCharacter()
 	WeaponAttachSocketName = "WeaponSocket";
 
 	bIsSwitchingWeapon = false;
+	bWantsToFire = false;
 }
 
 void ACSCharacter::BeginPlay()
@@ -229,6 +230,8 @@ void ACSCharacter::ResetCanJump()
 
 void ACSCharacter::RequestStartFire()
 {
+	bWantsToFire = true;
+	
 	if (CurrentWeapon && !bIsSwitchingWeapon)
 	{
 		bSprinting = false;
@@ -238,6 +241,8 @@ void ACSCharacter::RequestStartFire()
 
 void ACSCharacter::RequestStopFire()
 {
+	bWantsToFire = false;
+	
 	if (CurrentWeapon)
 	{
 		CurrentWeapon->RequestStopFire();
@@ -320,6 +325,10 @@ void ACSCharacter::SwitchWeapon(const int Index, ACSBaseWeapon* PreviousWeapon, 
 void ACSCharacter::CompleteWeaponSwitch()
 {
 	bIsSwitchingWeapon = false;
+	if(bWantsToFire)
+	{
+		RequestStartFire();
+	}
 }
 
 void ACSCharacter::Zoom()
