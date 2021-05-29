@@ -80,6 +80,18 @@ protected:
 	UPROPERTY()
 	UUserWidget* CrosshairWidget;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Animation")
+	UAnimMontage* EquipAnim;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Animation")
+	float NoAnimEquipDuration;
+
+	FTimerHandle TimerHandle_SwitchWeapon;
+	
+	FTimerHandle TimerHandle_CompleteWeaponSwitch;
+
+	bool bIsSwitchingWeapon;
+
 	virtual void BeginPlay() override;
 
 	void HandleFOV(float DeltaTime);
@@ -110,7 +122,11 @@ protected:
 
 	ACSBaseWeapon* SpawnWeapon(int Index);
 
-	void SwitchWeapon(int Index);
+	void RequestWeaponSwitch(int Index);
+	
+	void SwitchWeapon(int Index, ACSBaseWeapon* PreviousWeapon, const float RemainingAnimDuration);
+	
+	void CompleteWeaponSwitch();
 
 	DECLARE_DELEGATE_OneParam(FDelegate_WeaponSwitch, int);
 
@@ -122,6 +138,9 @@ protected:
 	bool IsFiring() const;
 
 	void RequestReload();
+	
+	float PlayWeaponAnimation(UAnimMontage* Animation, float InPlayRate = 1.f,
+							FName StartSectionName = NAME_None);
 
 
 public:

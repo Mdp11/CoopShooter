@@ -43,6 +43,8 @@ ACSCharacter::ACSCharacter()
 	ZoomInterpSpeed = 20.f;
 
 	WeaponAttachSocketName = "WeaponSocket";
+
+	bIsSwitchingWeapon = false;
 }
 
 void ACSCharacter::BeginPlay()
@@ -73,7 +75,7 @@ void ACSCharacter::BeginPlay()
 	if (WeaponClasses.Num() > 0)
 	{
 		Weapons.Init(nullptr, WeaponClasses.Num());
-		SwitchWeapon(0);
+		RequestWeaponSwitch(0);
 	}
 }
 
@@ -141,11 +143,11 @@ void ACSCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	PlayerInputComponent->BindAction("Fire", IE_Released, this, &ACSCharacter::RequestStopFire);
 
 	PlayerInputComponent->BindAction<FDelegate_WeaponSwitch>("WeaponSlot1", IE_Pressed, this,
-	                                                         &ACSCharacter::SwitchWeapon, 0);
+	                                                         &ACSCharacter::RequestWeaponSwitch, 0);
 	PlayerInputComponent->BindAction<FDelegate_WeaponSwitch>("WeaponSlot2", IE_Pressed, this,
-	                                                         &ACSCharacter::SwitchWeapon, 1);
+	                                                         &ACSCharacter::RequestWeaponSwitch, 1);
 	PlayerInputComponent->BindAction<FDelegate_WeaponSwitch>("WeaponSlot3", IE_Pressed, this,
-	                                                         &ACSCharacter::SwitchWeapon, 2);
+	                                                         &ACSCharacter::RequestWeaponSwitch, 2);
 
 	PlayerInputComponent->BindAction("Zoom", IE_Pressed, this, &ACSCharacter::Zoom);
 	PlayerInputComponent->BindAction("Zoom", IE_Released, this, &ACSCharacter::UnZoom);
@@ -227,7 +229,7 @@ void ACSCharacter::ResetCanJump()
 
 void ACSCharacter::RequestStartFire()
 {
-	if (CurrentWeapon)
+	if (CurrentWeapon && !bIsSwitchingWeapon)
 	{
 		bSprinting = false;
 		CurrentWeapon->RequestStartFire();
@@ -259,10 +261,12 @@ ACSBaseWeapon* ACSCharacter::SpawnWeapon(const int Index)
 	return Weapon;
 }
 
-void ACSCharacter::SwitchWeapon(const int Index)
+void ACSCharacter::RequestWeaponSwitch(const int Index)
 {
 	if (CurrentWeaponIndex != Index && Index < WeaponClasses.Num())
 	{
+		bIsSwitchingWeapon = true;
+		
 		if (!Weapons[Index])
 		{
 			auto* SpawnedWeapon = SpawnWeapon(Index);
@@ -278,14 +282,42 @@ void ACSCharacter::SwitchWeapon(const int Index)
 		if (CurrentWeapon)
 		{
 			CurrentWeapon->UnEquip();
-			CurrentWeapon->SetActorHiddenInGame(true);
+			
+			ACSBaseWeapon* PreviousWeapon = CurrentWeapon;
+			CurrentWeapon = nullptr;
+			
+			const float EquipAnimDuration = PlayWeaponAnimation(EquipAnim, 3.f);
+			GetWorldTimerManager().SetTimer(TimerHandle_SwitchWeapon,
+			                                FTimerDelegate::CreateUObject(
+				                                this, &ACSCharacter::SwitchWeapon, Index, PreviousWeapon, EquipAnimDuration / 2.f),
+			                                FMath::Max(0.1f, EquipAnimDuration / 2.f), false);
 		}
+		else
+		{
+			CurrentWeapon = Weapons[Index];
+			CurrentWeapon->SetActorHiddenInGame(false);
+		
+			CurrentWeaponIndex = Index;
 
-		CurrentWeapon = Weapons[Index];
-		CurrentWeapon->SetActorHiddenInGame(false);
-
-		CurrentWeaponIndex = Index;
+			bIsSwitchingWeapon = false;
+		}
 	}
+}
+
+void ACSCharacter::SwitchWeapon(const int Index, ACSBaseWeapon* PreviousWeapon, const float RemainingAnimDuration)
+{
+	PreviousWeapon->SetActorHiddenInGame(true);
+	CurrentWeapon = Weapons[Index];
+	CurrentWeapon->SetActorHiddenInGame(false);
+
+	CurrentWeaponIndex = Index;
+
+	GetWorldTimerManager().SetTimer(TimerHandle_CompleteWeaponSwitch, this, &ACSCharacter::CompleteWeaponSwitch, FMath::Max(0.1f, RemainingAnimDuration));
+}
+
+void ACSCharacter::CompleteWeaponSwitch()
+{
+	bIsSwitchingWeapon = false;
 }
 
 void ACSCharacter::Zoom()
@@ -310,6 +342,18 @@ void ACSCharacter::RequestReload()
 	{
 		CurrentWeapon->RequestReload();
 	}
+}
+
+float ACSCharacter::PlayWeaponAnimation(UAnimMontage* Animation, float InPlayRate, FName StartSectionName)
+{
+	float Duration = 0.0f;
+
+	if (Animation)
+	{
+		Duration = ACharacter::PlayAnimMontage(Animation, InPlayRate, StartSectionName);
+	}
+
+	return Duration / InPlayRate;
 }
 
 void ACSCharacter::AddRecoil(const FRotator& Recoil)
