@@ -121,6 +121,8 @@ protected:
 	UFUNCTION(BlueprintCallable, Category="State")
 	bool IsFiring() const;
 
+	void RequestReload();
+
 
 public:
 	virtual FVector GetPawnViewLocation() const override;
@@ -130,4 +132,10 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	void AddRecoil(const FRotator& Recoil);
+
+	UFUNCTION(BlueprintCallable, Category="Ammo")
+	int GetCurrentWeaponAmmo() const;
+
+	UFUNCTION(BlueprintCallable, Category="Ammo")
+	int GetCurrentWeaponMaxAmmo() const;
 };

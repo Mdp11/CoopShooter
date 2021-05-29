@@ -58,13 +58,12 @@ void ACSCharacter::BeginPlay()
 			if (CrosshairWidget)
 			{
 				CrosshairWidget->AddToViewport();
-				
+
 				UCSCrosshairWidget* SpawnedWidget = Cast<UCSCrosshairWidget>(CrosshairWidget);
-				if(SpawnedWidget)
+				if (SpawnedWidget)
 				{
 					SpawnedWidget->SetOwnerCharacter(this);
 				}
-				
 			}
 		}
 	}
@@ -149,8 +148,9 @@ void ACSCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	                                                         &ACSCharacter::SwitchWeapon, 2);
 
 	PlayerInputComponent->BindAction("Zoom", IE_Pressed, this, &ACSCharacter::Zoom);
-
 	PlayerInputComponent->BindAction("Zoom", IE_Released, this, &ACSCharacter::UnZoom);
+
+	PlayerInputComponent->BindAction("Reload", IE_Released, this, &ACSCharacter::RequestReload);
 }
 
 void ACSCharacter::MoveForward(float Value)
@@ -230,7 +230,7 @@ void ACSCharacter::RequestStartFire()
 	if (CurrentWeapon)
 	{
 		bSprinting = false;
-		CurrentWeapon->StartFire();
+		CurrentWeapon->RequestStartFire();
 	}
 }
 
@@ -238,7 +238,7 @@ void ACSCharacter::RequestStopFire()
 {
 	if (CurrentWeapon)
 	{
-		CurrentWeapon->StopFire();
+		CurrentWeapon->RequestStopFire();
 	}
 }
 
@@ -277,7 +277,7 @@ void ACSCharacter::SwitchWeapon(const int Index)
 
 		if (CurrentWeapon)
 		{
-			CurrentWeapon->StopFire();
+			CurrentWeapon->UnEquip();
 			CurrentWeapon->SetActorHiddenInGame(true);
 		}
 
@@ -304,9 +304,27 @@ bool ACSCharacter::IsFiring() const
 	return CurrentWeapon && CurrentWeapon->IsFiring();
 }
 
+void ACSCharacter::RequestReload()
+{
+	if (CurrentWeapon)
+	{
+		CurrentWeapon->RequestReload();
+	}
+}
+
 void ACSCharacter::AddRecoil(const FRotator& Recoil)
 {
 	RecoilToAdd = Recoil;
+}
+
+int ACSCharacter::GetCurrentWeaponAmmo() const
+{
+	return CurrentWeapon ? CurrentWeapon->GetCurrentMagazineAmmo() : 0;
+}
+
+int ACSCharacter::GetCurrentWeaponMaxAmmo() const
+{
+	return CurrentWeapon ? CurrentWeapon->GetCurrentBackupAmmo() : 0;
 }
 
 FVector ACSCharacter::GetPawnViewLocation() const
