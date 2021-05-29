@@ -49,6 +49,26 @@ void ACSCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
+	if (CrosshairWidgetClass)
+	{
+		APlayerController* PC = Cast<APlayerController>(GetController());
+		if (PC)
+		{
+			CrosshairWidget = CreateWidget(PC, CrosshairWidgetClass, TEXT("Crosshair"));
+			if (CrosshairWidget)
+			{
+				CrosshairWidget->AddToViewport();
+				
+				UCSCrosshairWidget* SpawnedWidget = Cast<UCSCrosshairWidget>(CrosshairWidget);
+				if(SpawnedWidget)
+				{
+					SpawnedWidget->SetOwnerCharacter(this);
+				}
+				
+			}
+		}
+	}
+
 	BaseFOV = CameraComponent->FieldOfView;
 
 	if (WeaponClasses.Num() > 0)

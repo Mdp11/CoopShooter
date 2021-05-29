@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 
+#include "CSCrosshairWidget.h"
 #include "GameFramework/Character.h"
 
 #include "CSCharacter.generated.h"
@@ -72,6 +73,12 @@ protected:
 	FName WeaponAttachSocketName;
 
 	FRotator RecoilToAdd;
+
+	UPROPERTY(EditDefaultsOnly, Category="UI")
+	TSubclassOf<UCSCrosshairWidget> CrosshairWidgetClass;
+
+	UPROPERTY()
+	UUserWidget* CrosshairWidget;
 
 	virtual void BeginPlay() override;
 
