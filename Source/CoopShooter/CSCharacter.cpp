@@ -370,13 +370,15 @@ void ACSCharacter::RequestReload()
 void ACSCharacter::Die()
 {
 	bIsDead = true;
-	CrosshairWidget->RemoveFromParent();
+	if (CrosshairWidget)
+	{
+		CrosshairWidget->RemoveFromParent();
+	}
 	GetMovementComponent()->StopMovementImmediately();
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	DetachFromControllerPendingDestroy();
 	SetLifeSpan(10.f);
-
 }
 
 void ACSCharacter::OnHealthChanged(UCSHealthComponent* HealthComp, float Health, float HealthDelta,
