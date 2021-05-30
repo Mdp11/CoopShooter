@@ -384,7 +384,7 @@ void ACSCharacter::Die()
 void ACSCharacter::OnHealthChanged(UCSHealthComponent* HealthComp, float Health, float HealthDelta,
                                    const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser)
 {
-	if (Health <= 0.f)
+	if (!bIsDead && Health <= 0.f)
 	{
 		Die();
 	}
