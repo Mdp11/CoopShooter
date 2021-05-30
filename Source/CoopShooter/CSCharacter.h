@@ -12,6 +12,7 @@
 class USpringArmComponent;
 class UCameraComponent;
 class ACSBaseWeapon;
+class UCSHealthComponent;
 
 UCLASS()
 class COOPSHOOTER_API ACSCharacter : public ACharacter
@@ -27,6 +28,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components")
 	UCameraComponent* CameraComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components")
+	UCSHealthComponent* HealthComponent;
 
 	UPROPERTY(EditDefaultsOnly, Category="Weapons")
 	TArray<TSubclassOf<ACSBaseWeapon>> WeaponClasses;
@@ -94,6 +98,9 @@ protected:
 
 	bool bWantsToFire;
 
+	UPROPERTY(BlueprintReadOnly, Category = "State")
+	bool bIsDead;
+
 	virtual void BeginPlay() override;
 
 	void HandleFOV(float DeltaTime);
@@ -140,6 +147,13 @@ protected:
 	bool IsFiring() const;
 
 	void RequestReload();
+
+	void Die();
+	
+	UFUNCTION()
+	void OnHealthChanged(UCSHealthComponent* HealthComp, float Health,
+											float HealthDelta, const class UDamageType* DamageType,
+											class AController* InstigatedBy, AActor* DamageCauser);
 
 public:
 	virtual FVector GetPawnViewLocation() const override;

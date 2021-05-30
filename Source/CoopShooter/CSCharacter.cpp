@@ -8,6 +8,8 @@
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "CSBaseWeapon.h"
+#include "Components/CapsuleComponent.h"
+#include "Components/CSHealthComponent.h"
 
 ACSCharacter::ACSCharacter()
 {
@@ -18,8 +20,12 @@ ACSCharacter::ACSCharacter()
 	SpringArmComponent->bUsePawnControlRotation = true;
 	SpringArmComponent->SetRelativeLocation({0.f, 0.f, 80.f});
 
+	GetCapsuleComponent()->SetCollisionResponseToChannel(COLLISION_WEAPON, ECR_Ignore);
+
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>("CameraComponent");
 	CameraComponent->SetupAttachment(SpringArmComponent);
+
+	HealthComponent = CreateDefaultSubobject<UCSHealthComponent>("HealthComponent");
 
 	GetCharacterMovement()->GetNavAgentPropertiesRef().bCanCrouch = true;
 	GetCharacterMovement()->CrouchedHalfHeight = 58.f;
@@ -46,6 +52,8 @@ ACSCharacter::ACSCharacter()
 
 	bIsSwitchingWeapon = false;
 	bWantsToFire = false;
+
+	HealthComponent->OnHealthChanged.AddDynamic(this, &ACSCharacter::OnHealthChanged);
 }
 
 void ACSCharacter::BeginPlay()
@@ -231,7 +239,7 @@ void ACSCharacter::ResetCanJump()
 void ACSCharacter::RequestStartFire()
 {
 	bWantsToFire = true;
-	
+
 	if (CurrentWeapon && !bIsSwitchingWeapon)
 	{
 		bSprinting = false;
@@ -242,7 +250,7 @@ void ACSCharacter::RequestStartFire()
 void ACSCharacter::RequestStopFire()
 {
 	bWantsToFire = false;
-	
+
 	if (CurrentWeapon)
 	{
 		CurrentWeapon->RequestStopFire();
@@ -325,7 +333,7 @@ void ACSCharacter::SwitchWeapon(const int Index, ACSBaseWeapon* PreviousWeapon, 
 void ACSCharacter::CompleteWeaponSwitch()
 {
 	bIsSwitchingWeapon = false;
-	if(bWantsToFire)
+	if (bWantsToFire)
 	{
 		RequestStartFire();
 	}
@@ -352,6 +360,26 @@ void ACSCharacter::RequestReload()
 	if (CurrentWeapon)
 	{
 		CurrentWeapon->RequestReload();
+	}
+}
+
+void ACSCharacter::Die()
+{
+	bIsDead = true;
+	GetMovementComponent()->StopMovementImmediately();
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	DetachFromControllerPendingDestroy();
+	SetLifeSpan(10.f);
+
+}
+
+void ACSCharacter::OnHealthChanged(UCSHealthComponent* HealthComp, float Health, float HealthDelta,
+                                   const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser)
+{
+	if (Health <= 0.f)
+	{
+		Die();
 	}
 }
 
