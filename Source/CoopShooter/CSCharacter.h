@@ -149,6 +149,8 @@ protected:
 	void RequestReload();
 
 	void Die();
+
+	void AddCrosshairWidget();
 	
 	UFUNCTION()
 	void OnHealthChanged(UCSHealthComponent* HealthComp, float Health,

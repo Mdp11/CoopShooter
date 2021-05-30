@@ -56,10 +56,8 @@ ACSCharacter::ACSCharacter()
 	HealthComponent->OnHealthChanged.AddDynamic(this, &ACSCharacter::OnHealthChanged);
 }
 
-void ACSCharacter::BeginPlay()
+void ACSCharacter::AddCrosshairWidget()
 {
-	Super::BeginPlay();
-
 	if (CrosshairWidgetClass)
 	{
 		APlayerController* PC = Cast<APlayerController>(GetController());
@@ -69,7 +67,6 @@ void ACSCharacter::BeginPlay()
 			if (CrosshairWidget)
 			{
 				CrosshairWidget->AddToViewport();
-
 				UCSCrosshairWidget* SpawnedWidget = Cast<UCSCrosshairWidget>(CrosshairWidget);
 				if (SpawnedWidget)
 				{
@@ -78,6 +75,13 @@ void ACSCharacter::BeginPlay()
 			}
 		}
 	}
+}
+
+void ACSCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+
+	AddCrosshairWidget();
 
 	BaseFOV = CameraComponent->FieldOfView;
 
@@ -366,6 +370,7 @@ void ACSCharacter::RequestReload()
 void ACSCharacter::Die()
 {
 	bIsDead = true;
+	CrosshairWidget->RemoveFromParent();
 	GetMovementComponent()->StopMovementImmediately();
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
