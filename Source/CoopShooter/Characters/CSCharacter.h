@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 
-#include "CSCrosshairWidget.h"
+#include "CoopShooter/UI/CSCrosshairWidget.h"
 #include "GameFramework/Character.h"
 
 #include "CSCharacter.generated.h"

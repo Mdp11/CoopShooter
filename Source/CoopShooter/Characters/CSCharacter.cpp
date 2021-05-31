@@ -3,13 +3,13 @@
 
 #include "CSCharacter.h"
 
-#include "CoopShooter.h"
+#include "CoopShooter/CoopShooter.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
-#include "Weapons/CSWeaponBase.h"
+#include "CoopShooter/Weapons/CSWeaponBase.h"
 #include "Components/CapsuleComponent.h"
-#include "Components/CSHealthComponent.h"
+#include "CoopShooter/Components/CSHealthComponent.h"
 #include "Net/UnrealNetwork.h"
 
 ACSCharacter::ACSCharacter()
