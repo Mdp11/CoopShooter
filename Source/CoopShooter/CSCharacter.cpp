@@ -10,6 +10,7 @@
 #include "CSBaseWeapon.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/CSHealthComponent.h"
+#include "Net/UnrealNetwork.h"
 
 ACSCharacter::ACSCharacter()
 {
@@ -81,7 +82,10 @@ void ACSCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	AddCrosshairWidget();
+	if(IsLocallyControlled())
+	{
+		AddCrosshairWidget();
+	}
 
 	BaseFOV = CameraComponent->FieldOfView;
 
@@ -263,19 +267,24 @@ void ACSCharacter::RequestStopFire()
 
 ACSBaseWeapon* ACSCharacter::SpawnWeapon(const int Index)
 {
-	FActorSpawnParameters SpawnParameters;
-	SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-
-	ACSBaseWeapon* Weapon = GetWorld()->SpawnActor<ACSBaseWeapon>(WeaponClasses[Index], SpawnParameters);
-	if (Weapon)
+	if (HasAuthority())
 	{
-		Weapon->SetActorHiddenInGame(true);
+		FActorSpawnParameters SpawnParameters;
+		SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
-		Weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale,
-		                          WeaponAttachSocketName);
-		Weapon->SetOwner(this);
+		ACSBaseWeapon* Weapon = GetWorld()->SpawnActor<ACSBaseWeapon>(WeaponClasses[Index], SpawnParameters);
+		if (Weapon)
+		{
+			Weapon->SetActorHiddenInGame(true);
+
+			Weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale,
+			                          WeaponAttachSocketName);
+			Weapon->SetOwner(this);
+		}
+		return Weapon;
 	}
-	return Weapon;
+
+	return nullptr;
 }
 
 void ACSCharacter::RequestWeaponSwitch(const int Index)
@@ -287,9 +296,9 @@ void ACSCharacter::RequestWeaponSwitch(const int Index)
 		if (!Weapons[Index])
 		{
 			auto* SpawnedWeapon = SpawnWeapon(Index);
-
 			if (!SpawnedWeapon)
 			{
+				LOG("Spawn faillito!")
 				return;
 			}
 
@@ -425,4 +434,13 @@ FVector ACSCharacter::GetPawnViewLocation() const
 	}
 
 	return Super::GetPawnViewLocation();
+}
+
+void ACSCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ACSCharacter, CurrentWeapon);
+	DOREPLIFETIME(ACSCharacter, Weapons);
+	DOREPLIFETIME(ACSCharacter, CurrentWeaponIndex);
 }

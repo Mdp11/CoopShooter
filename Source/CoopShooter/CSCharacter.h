@@ -35,10 +35,10 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category="Weapons")
 	TArray<TSubclassOf<ACSBaseWeapon>> WeaponClasses;
 
-	UPROPERTY()
+	UPROPERTY(Replicated)
 	TArray<ACSBaseWeapon*> Weapons;
 
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(BlueprintReadOnly, Replicated)
 	ACSBaseWeapon* CurrentWeapon;
 
 	UPROPERTY(EditDefaultsOnly, Category="Combat")
@@ -52,6 +52,7 @@ protected:
 	UPROPERTY(BlueprintReadOnly)
 	bool bTargeting;
 
+	UPROPERTY(Replicated)
 	int CurrentWeaponIndex;
 
 	UPROPERTY(EditInstanceOnly, Category="Movement")
