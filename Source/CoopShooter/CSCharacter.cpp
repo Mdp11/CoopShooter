@@ -7,7 +7,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
-#include "CSBaseWeapon.h"
+#include "Weapons/CSWeaponBase.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/CSHealthComponent.h"
 #include "Net/UnrealNetwork.h"
@@ -82,7 +82,7 @@ void ACSCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if(IsLocallyControlled())
+	if (IsLocallyControlled())
 	{
 		AddCrosshairWidget();
 	}
@@ -265,14 +265,14 @@ void ACSCharacter::RequestStopFire()
 	}
 }
 
-ACSBaseWeapon* ACSCharacter::SpawnWeapon(const int Index)
+ACSWeaponBase* ACSCharacter::SpawnWeapon(const int Index)
 {
 	if (HasAuthority())
 	{
 		FActorSpawnParameters SpawnParameters;
 		SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
-		ACSBaseWeapon* Weapon = GetWorld()->SpawnActor<ACSBaseWeapon>(WeaponClasses[Index], SpawnParameters);
+		ACSWeaponBase* Weapon = GetWorld()->SpawnActor<ACSWeaponBase>(WeaponClasses[Index], SpawnParameters);
 		if (Weapon)
 		{
 			Weapon->SetActorHiddenInGame(true);
@@ -289,7 +289,7 @@ ACSBaseWeapon* ACSCharacter::SpawnWeapon(const int Index)
 
 void ACSCharacter::RequestWeaponSwitch(const int Index)
 {
-	if (CurrentWeaponIndex != Index && Index < WeaponClasses.Num())
+	if (CurrentWeaponIndex != Index && Index < WeaponClasses.Num() && WeaponClasses[Index])
 	{
 		bIsSwitchingWeapon = true;
 
@@ -309,7 +309,7 @@ void ACSCharacter::RequestWeaponSwitch(const int Index)
 		{
 			CurrentWeapon->UnEquip();
 
-			ACSBaseWeapon* PreviousWeapon = CurrentWeapon;
+			ACSWeaponBase* PreviousWeapon = CurrentWeapon;
 			CurrentWeapon = nullptr;
 
 			const float EquipAnimDuration = PlayWeaponAnimation(EquipAnim, 3.f);
@@ -331,7 +331,7 @@ void ACSCharacter::RequestWeaponSwitch(const int Index)
 	}
 }
 
-void ACSCharacter::SwitchWeapon(const int Index, ACSBaseWeapon* PreviousWeapon, const float RemainingAnimDuration)
+void ACSCharacter::SwitchWeapon(const int Index, ACSWeaponBase* PreviousWeapon, const float RemainingAnimDuration)
 {
 	PreviousWeapon->SetActorHiddenInGame(true);
 	CurrentWeapon = Weapons[Index];

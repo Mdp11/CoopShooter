@@ -11,7 +11,7 @@
 
 class USpringArmComponent;
 class UCameraComponent;
-class ACSBaseWeapon;
+class ACSWeaponBase;
 class UCSHealthComponent;
 
 UCLASS()
@@ -33,13 +33,13 @@ protected:
 	UCSHealthComponent* HealthComponent;
 
 	UPROPERTY(EditDefaultsOnly, Category="Weapons")
-	TArray<TSubclassOf<ACSBaseWeapon>> WeaponClasses;
+	TArray<TSubclassOf<ACSWeaponBase>> WeaponClasses;
 
 	UPROPERTY(Replicated)
-	TArray<ACSBaseWeapon*> Weapons;
+	TArray<ACSWeaponBase*> Weapons;
 
 	UPROPERTY(BlueprintReadOnly, Replicated)
-	ACSBaseWeapon* CurrentWeapon;
+	ACSWeaponBase* CurrentWeapon;
 
 	UPROPERTY(EditDefaultsOnly, Category="Combat")
 	float ZoomedFOV;
@@ -130,11 +130,11 @@ protected:
 
 	void RequestStopFire();
 
-	ACSBaseWeapon* SpawnWeapon(int Index);
+	ACSWeaponBase* SpawnWeapon(int Index);
 
 	void RequestWeaponSwitch(int Index);
 
-	void SwitchWeapon(int Index, ACSBaseWeapon* PreviousWeapon, const float RemainingAnimDuration);
+	void SwitchWeapon(int Index, ACSWeaponBase* PreviousWeapon, const float RemainingAnimDuration);
 
 	void CompleteWeaponSwitch();
 
@@ -152,11 +152,11 @@ protected:
 	void Die();
 
 	void AddCrosshairWidget();
-	
+
 	UFUNCTION()
 	void OnHealthChanged(UCSHealthComponent* HealthComp, float Health,
-											float HealthDelta, const class UDamageType* DamageType,
-											class AController* InstigatedBy, AActor* DamageCauser);
+	                     float HealthDelta, const class UDamageType* DamageType,
+	                     class AController* InstigatedBy, AActor* DamageCauser);
 
 public:
 	virtual FVector GetPawnViewLocation() const override;
