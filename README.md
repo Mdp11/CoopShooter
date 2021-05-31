@@ -3,11 +3,12 @@ Co-op shooter game made in UE4
 
 # Features
 
-- Character movement (with animations)
+- Character movement
   - Walk/Run
   - Sprint
   - Jump
   - Crouch
+  - Iron sight
 - Weapon system
   - Different weapon types
     - Hitscan
@@ -15,6 +16,7 @@ Co-op shooter game made in UE4
   - Spread
   - Recoil
   - Ammo and reloading
+- Animations
   
   
  # To-do
