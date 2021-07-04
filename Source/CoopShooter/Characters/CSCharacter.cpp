@@ -379,12 +379,18 @@ void ACSCharacter::RequestReload()
 void ACSCharacter::Die()
 {
 	bIsDead = true;
+	RequestStopFire();
 	if (CrosshairWidget)
 	{
 		CrosshairWidget->RemoveFromParent();
 	}
 	GetMovementComponent()->StopMovementImmediately();
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	for (auto& Weapon : Weapons)
+	{
+		Weapon->SetLifeSpan(10.f);
+	}
 
 	DetachFromControllerPendingDestroy();
 	SetLifeSpan(10.f);
