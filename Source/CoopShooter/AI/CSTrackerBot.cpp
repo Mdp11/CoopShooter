@@ -7,8 +7,8 @@
 #include "NavigationPath.h"
 #include "NavigationSystem.h"
 #include "CoopShooter/Characters/CSCharacter.h"
-#include "GameFramework/Character.h"
 #include "Kismet/GameplayStatics.h"
+#include "EngineUtils.h"
 
 ACSTrackerBot::ACSTrackerBot()
 {
@@ -35,26 +35,59 @@ ACSTrackerBot::ACSTrackerBot()
 	bExploded = false;
 
 	BaseDamage = 100.f;
-	DamageRadius = 200.f;
+	DamageRadius = 300.f;
 	SelfDamageInterval = 0.25f;
 }
 
-FVector ACSTrackerBot::GetNextPathPoint() const
+FVector ACSTrackerBot::GetNextPathPoint()
 {
-	ACharacter* PlayerCharacter = UGameplayStatics::GetPlayerCharacter(this, 0);
-	UNavigationPath* Path = UNavigationSystemV1::FindPathToActorSynchronously(
-		GetWorld(), GetActorLocation(), PlayerCharacter);
+	AActor* BestTarget = nullptr;
+	float NearestTargetDistance = FLT_MAX;
 
-	if (Path && Path->PathPoints.Num() > 1)
+	for (TActorIterator<APawn> It(GetWorld()); It; ++It)
 	{
-		return Path->PathPoints[1];
+		APawn* Pawn = *It;
+
+		if (!Pawn || UCSHealthComponent::IsFriendly(Pawn, this))
+		{
+			continue;
+		}
+
+		if (UCSHealthComponent* PawnHealthComponent = Cast<UCSHealthComponent>(
+			Pawn->GetComponentByClass(UCSHealthComponent::StaticClass())))
+		{
+			if (PawnHealthComponent->GetHealth() > 0.f)
+			{
+				const float Distance = (Pawn->GetActorLocation() - GetActorLocation()).Size();
+				if (Distance < NearestTargetDistance)
+				{
+					NearestTargetDistance = Distance;
+					BestTarget = Pawn;
+				}
+			}
+		}
 	}
+
+	if (BestTarget)
+	{
+		UNavigationPath* Path = UNavigationSystemV1::FindPathToActorSynchronously(
+			GetWorld(), GetActorLocation(), BestTarget);
+
+		GetWorldTimerManager().ClearTimer(TimerHandle_RefreshPath);
+		GetWorldTimerManager().SetTimer(TimerHandle_RefreshPath, this, &ACSTrackerBot::RefreshPath, 5.f, false);
+
+		if (Path && Path->PathPoints.Num() > 1)
+		{
+			return Path->PathPoints[1];
+		}
+	}
+
 
 	return GetActorLocation();
 }
 
 void ACSTrackerBot::HandleTakeDamage(UCSHealthComponent* HealthComp, float Health, float HealthDelta,
-                                    const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser)
+                                     const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser)
 {
 	if (!MaterialInstanceDynamic)
 	{
@@ -98,25 +131,33 @@ void ACSTrackerBot::SelfDamage()
 	TakeDamage(20.f, FDamageEvent{}, GetInstigatorController(), this);
 }
 
+void ACSTrackerBot::RefreshPath()
+{
+	NextPathPoint = GetNextPathPoint();
+}
+
 void ACSTrackerBot::BeginPlay()
 {
 	Super::BeginPlay();
 
-	NextPathPoint = GetNextPathPoint();
+	RefreshPath();
 }
 
 void ACSTrackerBot::NotifyActorBeginOverlap(AActor* OtherActor)
 {
 	if (!bSelfDestructing)
 	{
-		if (ACSCharacter* PlayerPawn = Cast<ACSCharacter>(OtherActor))
+		if (Cast<ACSCharacter>(OtherActor))
 		{
-			bSelfDestructing = true;
-			GetWorldTimerManager().SetTimer(TimerHandle_SelfDestruct, this, &ACSTrackerBot::SelfDamage,
-			                                SelfDamageInterval, true,
-			                                0.f);
+			if (!UCSHealthComponent::IsFriendly(OtherActor, this))
+			{
+				bSelfDestructing = true;
+				GetWorldTimerManager().SetTimer(TimerHandle_SelfDestruct, this, &ACSTrackerBot::SelfDamage,
+				                                SelfDamageInterval, true,
+				                                0.f);
 
-			UGameplayStatics::SpawnSoundAttached(SelfDestructSound, RootComponent);
+				UGameplayStatics::SpawnSoundAttached(SelfDestructSound, RootComponent);
+			}
 		}
 	}
 }

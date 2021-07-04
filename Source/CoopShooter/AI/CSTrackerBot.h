@@ -50,8 +50,10 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category="Damage")
 	float SelfDamageInterval;
+	
+	FTimerHandle TimerHandle_RefreshPath;
 
-	FVector GetNextPathPoint() const;
+	FVector GetNextPathPoint();
 
 	bool bSelfDestructing;
 
@@ -76,6 +78,8 @@ protected:
 	void SelfDestruct();
 
 	void SelfDamage();
+
+	void RefreshPath();
 
 	virtual void BeginPlay() override;
 
