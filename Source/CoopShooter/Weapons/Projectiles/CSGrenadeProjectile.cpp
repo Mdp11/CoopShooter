@@ -20,7 +20,7 @@ void ACSGrenadeProjectile::Explode()
 
 	UGameplayStatics::ApplyRadialDamage(GetWorld(), Damage, GetActorLocation(),
 	                                    ExplosionRadius, DamageType, TArray<AActor*>{},
-	                                    this, GetOwner()->GetInstigatorController());
+	                                    GetOwner()->GetOwner(), GetOwner()->GetInstigatorController());
 
 	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ExplosionEffect, GetActorLocation(), FRotator::ZeroRotator,
 	                                         FVector{

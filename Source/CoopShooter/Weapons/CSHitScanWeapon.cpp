@@ -100,7 +100,7 @@ void ACSHitScanWeapon::Fire()
 			}
 
 			UGameplayStatics::ApplyPointDamage(ActorHit, ActualDamage, ShotDirection, HitResult,
-			                                   WeaponOwner->GetInstigatorController(), this, DamageType);
+			                                   WeaponOwner->GetInstigatorController(), GetOwner(), DamageType);
 
 			PlayImpactEffects(HitResult);
 
