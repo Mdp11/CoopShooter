@@ -126,10 +126,6 @@ protected:
 
 	void ResetCanJump();
 
-	void RequestStartFire();
-
-	void RequestStopFire();
-
 	ACSWeaponBase* SpawnWeapon(int Index);
 
 	void RequestWeaponSwitch(int Index);
@@ -175,4 +171,10 @@ public:
 
 	float PlayWeaponAnimation(UAnimMontage* Animation, float InPlayRate = 1.f,
 	                          FName StartSectionName = NAME_None);
+
+	UFUNCTION(BlueprintCallable, Category="Player")
+	void RequestStartFire();
+
+	UFUNCTION(BlueprintCallable, Category="Player")
+	void RequestStopFire();
 };

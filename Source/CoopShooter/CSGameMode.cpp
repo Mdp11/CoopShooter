@@ -84,9 +84,9 @@ void ACSGameMode::CheckWaveState()
 
 void ACSGameMode::CheckAnyPlayerAlive()
 {
-	for (auto& It : GetWorld()->GetPlayerControllerIterator())
+	for( FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
 	{
-		if (APlayerController* PC = *It)
+		if (APlayerController* PC = It->Get())
 		{
 			if (APawn* Pawn = PC->GetPawn())
 			{
